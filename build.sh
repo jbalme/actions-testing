@@ -60,4 +60,5 @@ dnf install -y --skip-broken --enablerepo=epel --enablerepo=powertools \
 
 make -j1 rpm-utils rpm-kmod
 
-cp kmod-zfs-${KERNEL_FULL_VERSION}-${ZFS_VERSION}-1.fc36.x86_64.rpm /data/packages/
+mkdir /data/packages/
+cp kmod-zfs-${KERNEL_FULL_VERSION}-${ZFS_VERSION}-*.rpm /data/packages/
