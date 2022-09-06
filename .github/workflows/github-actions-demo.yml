@@ -15,3 +15,4 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+      - run: curl 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq
