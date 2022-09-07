@@ -1,18 +1,30 @@
 name: GitHub Actions Demo
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Get-Latest-Zfs:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-      - run: curl 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -r '.updates | map(.builds[] | select(.nvr | test("^kernel-\\d"))) | map(.nvr) | .[]'
+      - run: |-
+          printf "::set-output name=matrix::"; curl -s 'https://api.github.com/repos/openzfs/zfs/releases' | jq -c '.[0] | .tag_name'
+  Get-Latest-Fedora-Kernels:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - run: |-
+          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr, release: .release.version}]'
+  Build-Rpms:
+    needs:
+      - Get-Latest-Zfs
+      - Get-Latest-Fedora-Kernels
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        zfs: ${{fromJson(needs.Get-Latest-Zfs.outputs.matrix)}}
+        fedora: ${{fromJson(needs.Get-Latest-Fedora-Kernels.outputs.matrix)}}
+    steps:
+      - run: |-
+          echo matrix version: ${{ matrix.zfs }}
+          echo fedora version: ${{ matrix.fedora.release }}
