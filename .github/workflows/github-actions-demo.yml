@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         zfs: [1,2]
-        fedora: [{release: 35},{release: 36}]
+        fedora: [{release: 35, kernel: "x"},{release: 36, kernel: "y"}]
     steps:
       - run: |-
           echo matrix version: ${{ matrix.zfs }}
