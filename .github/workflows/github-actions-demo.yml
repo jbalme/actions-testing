@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        zfs: ${{fromJson(needs.Get-Latest-Zfs.outputs.matrix)}}
-        fedora: ${{fromJson(needs.Get-Latest-Fedora-Kernels.outputs.matrix)}}
+        zfs: [1,2]
+        fedora: [{release: 35},{release: 36}]
     steps:
       - run: |-
           echo matrix version: ${{ matrix.zfs }}
