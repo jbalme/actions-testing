@@ -26,7 +26,7 @@ jobs:
       matrix:
         zfs: ${{fromJson(needs.Get-Latest-Zfs.outputs.matrix)}}
         fedora: ${{fromJson(needs.Get-Latest-Fedora-Kernels.outputs.matrix)}}
-    if: ${{ matrix.fedora.release }} == 36
+    if: matrix.fedora.release == 36
     steps:
       - run: |-
           echo matrix version: ${{ matrix.zfs }}
