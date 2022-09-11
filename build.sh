@@ -3,7 +3,7 @@
 set -ex
 
 ARCH="$(uname -m)"
-KERNEL_VERSION="$2"
+KERNEL_VERSION="${2#kernel-}"
 # ZFS_VERSION="$3"
 
 echo $1 $2 $3
