@@ -54,5 +54,11 @@ jobs:
       - name: do something
         run: |-
           docker run --interactive --rm -v $PWD:/data:z fedora:latest /data/create-repo.sh ${{matrix.fedora.release}} ${{matrix.fedora.kernel}} ${{matrix.zfs}} 
-          
+      - name: cleanup
+        run: |-
+          rm -rf ./packages
+      - name: upload repo to GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./
 
