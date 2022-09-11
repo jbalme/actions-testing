@@ -18,12 +18,12 @@ WORKDIR=$(mktemp -d)
 cd $WORKDIR
 # 
 
-sudo dnf install -y --skip-broken koji epel-release gcc make autoconf automake libtool rpm-build kernel-rpm-macros libtirpc-devel libblkid-devel libuuid-devel libudev-devel openssl-devel zlib-devel libaio-devel libattr-devel elfutils-libelf-devel kernel-devel-${KERNEL_FULL_VERSION} python3 python3-devel python3-setuptools python3-cffi libffi-devel ncompress
+sudo dnf install -y --skip-broken koji epel-release gcc make autoconf automake libtool rpm-build kernel-rpm-macros libtirpc-devel libblkid-devel libuuid-devel libudev-devel openssl-devel zlib-devel libaio-devel libattr-devel elfutils-libelf-devel python3 python3-devel python3-setuptools python3-cffi libffi-devel ncompress
 sudo dnf install -y --skip-broken --enablerepo=epel --enablerepo=powertools python3-packaging dkms
 
-#koji download-build --arch=${ARCH} --rpm kernel-devel-${KERNEL_FULL_VERSION}
-#dnf install -y \
-#    ./kernel-devel-${KERNEL_FULL_VERSION}.rpm
+koji download-build --arch=${ARCH} --rpm kernel-devel-${KERNEL_FULL_VERSION}
+sudo dnf install -y \
+    ./kernel-devel-${KERNEL_FULL_VERSION}.rpm
 # 
 
 tar xf /data/${ZFS_FILENAME}
