@@ -16,8 +16,8 @@ jobs:
     steps:
       - id: set-matrix
         run: |-
-          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr, release: .release.version}]'
-  Build-Rpms:
+          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr | sub("^kernel-"; ""), release: .release.version}]'
+  Build-Kmods:
     needs:
       - Get-Latest-Zfs
       - Get-Latest-Fedora-Kernels
@@ -34,20 +34,23 @@ jobs:
           wget https://github.com/openzfs/zfs/releases/download/${{matrix.zfs}}/${{matrix.zfs}}.tar.gz
       - name: do build
         run: |-
-          docker run --interactive --rm -v $PWD:/data:z fedora:${{matrix.fedora.release}} /data/build.sh ${{matrix.fedora.release}} ${{matrix.fedora.kernel}} ${{matrix.zfs}}
+          docker run --interactive --rm -v $PWD:/data:z fedora:${{matrix.fedora.release}} /data/build.sh ${{matrix.fedora.release}} ${{matrix.fedora.kernel}} ${{matrix.zfs}} rpm-kmod
       - name: upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{matrix.fedora.release}}-${{matrix.fedora.kernel}}-${{matrix.zfs}}.rpm
-          path: ./packages/*.rpm
+          name: kmod-${{matrix.fedora.release}}-${{matrix.fedora.kernel}}-${{matrix.zfs}}
+          path: ./packages/kmod-*.rpm
   Build-Repo:
     needs:
-      - Build-Rpms
+      - Build-Kmods
     runs-on: ubuntu-latest
     steps:
       - name: download all artifacts
         uses: actions/download-artifact@v3
+        with:
+          path: ./packages
       - name: do something
         run: |-
-          find . -iname \*.rpm
+          docker run --interactive --rm -v $PWD:/data:z fedora:latest /data/create-repo.sh ${{matrix.fedora.release}} ${{matrix.fedora.kernel}} ${{matrix.zfs}} 
+          
 
