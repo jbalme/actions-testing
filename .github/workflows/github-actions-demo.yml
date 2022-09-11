@@ -26,8 +26,8 @@ jobs:
       matrix:
         zfs: ${{fromJson(needs.Get-Latest-Zfs.outputs.matrix)}}
         fedora: ${{fromJson(needs.Get-Latest-Fedora-Kernels.outputs.matrix)}}
-    if: matrix.fedora.release == 36
     steps:
+      - name: check out code
+        uses: actions/checkout@v3
       - run: |-
-          echo matrix version: ${{ matrix.zfs }}
-          echo fedora version: ${{ matrix.fedora.release }}
+          docker run --interactive --rm -v $PWD:/data:z fedora:${{matrix.fedora.release}} /data/build.sh ${{matrix.fedora.release}} ${{matrix.fedora.kernel}} ${{matrix.zfs}}
