@@ -60,6 +60,6 @@ cd ${ZFS_NAME}
 # 
 ./configure --with-linux=/usr/src/kernels/${KERNEL_FULL_VERSION}
 # 
-make -j1 srpm-utils srpm-kmod
+make -j1 rpm-utils rpm-kmod
 mkdir -p /data/packages/
 cp *.rpm /data/packages/
