@@ -26,6 +26,8 @@ jobs:
       matrix:
         zfs: ${{fromJson(needs.Get-Latest-Zfs.outputs.matrix)}}
         fedora: ${{fromJson(needs.Get-Latest-Fedora-Kernels.outputs.matrix)}}
+        arch:
+        - x86_64
     steps:
       - name: check out code
         uses: actions/checkout@v3
@@ -39,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: kmod-${{matrix.fedora.release}}-${{matrix.fedora.kernel}}-${{matrix.zfs}}
-          path: ./packages/kmod-*.rpm
+          path: ./packages/*.rpm
   Build-Repo:
     needs:
       - Build-Kmods
