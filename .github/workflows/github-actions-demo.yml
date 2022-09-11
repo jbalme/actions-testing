@@ -16,7 +16,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |-
-          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr | sub("^kernel-"; ""), release: .release.version}]'
+          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | group_by(.release.version) | max_by(.[0].release.version) | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr | sub("^kernel-"; ""), release: .release.version}]'
   Build-Kmods:
     needs:
       - Get-Latest-Zfs
@@ -45,6 +45,8 @@ jobs:
       - Build-Kmods
     runs-on: ubuntu-latest
     steps:
+      - name: check out code
+        uses: actions/checkout@v3
       - name: download all artifacts
         uses: actions/download-artifact@v3
         with:
