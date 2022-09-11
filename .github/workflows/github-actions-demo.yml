@@ -49,3 +49,14 @@ jobs:
         with:
           name: ${{matrix.fedora.release}}-${{matrix.fedora.kernel}}-${{matrix.zfs}}.rpm
           path: ./packages/*.rpm
+  Build-Repo:
+    needs:
+      - Build-Rpms
+    runs-on: ubuntu-latest
+    steps:
+      - name: download all artifacts
+        uses: actions/download-artifact@v3
+      - name: do something
+        run: |-
+          find . -iname \*.rpm
+
