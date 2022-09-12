@@ -16,7 +16,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |-
-          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | group_by(.release.version) | max_by(.[0].release.version) | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr | sub("^kernel-"; ""), release: .release.version}] | [.[0]]'
+          printf "::set-output name=matrix::"; curl -s 'https://bodhi.fedoraproject.org/updates/?search=kernel&status=testing&status=stable&releases=__current__' | jq -c '.updates | [.[] | {kernel: .builds[] | select(.nvr | test("^kernel-\\d")) | .nvr | sub("^kernel-"; ""), release: .release.version}] | group_by(.release) | map(.[0])'
   Build-Rpms:
     needs:
       - Get-Latest-Zfs
@@ -40,10 +40,11 @@ jobs:
       - name: upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{matrix.fedora.release}}/${matrix.arch}/rpms
+          name: ${{matrix.fedora.release}}-${matrix.arch}-rpms
           path: ./packages/*.rpm
   Build-Repo:
     needs:
+      - Get-Latest-Fedora-Kernels
       - Build-Rpms
     runs-on: ubuntu-latest
     steps:
